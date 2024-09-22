@@ -11,14 +11,13 @@ const databaseSetup = () => {
             tx.executeSql(
                 'CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT, password TEXT);',
                 [],
-                () => console.log("Data is accessed")
+                () => console.log("Database is accessed")
             )
         })
 
         selectData()
     }, [])
 }
-
 
 
 
@@ -31,14 +30,14 @@ const insertData = (user, pass) => {
                 console.log('Data is inserted successfully')
                 selectData()
             },
-            error => { console.log('That is because You are black') }
+            error => { alert('ERROR!! Can not creat new account, please try agian') }
         )
 
     })
 }
 
 
-
+//Dùng để hiển thị và Mục đích chính là cập nhật lại table
 const selectData = () => {
     db.transaction(tx => {
         tx.executeSql(
@@ -51,10 +50,6 @@ const selectData = () => {
         )
     })
 }
-
-
-
-
 
 export default function LoginScreen({ route, navigation }) {
     useEffect(() => {
@@ -71,7 +66,7 @@ export default function LoginScreen({ route, navigation }) {
 
     databaseSetup()
 
-    const loginHandeler = () => {
+    const loginHandler = () => {
         if (!userID || !pass) {
             alert('Please enter both username and password');
             return;
@@ -84,7 +79,7 @@ export default function LoginScreen({ route, navigation }) {
                     if (_array.length > 0) {
                         NaviHome()
                     } else {
-                        alert('Sai tài khoản hoặc mật khẩu')
+                        alert('Incorrect username or password')
                     }
                 },
                 (txObj, error) => {
@@ -100,6 +95,7 @@ export default function LoginScreen({ route, navigation }) {
     const NaviHome = () => {
         navigation.navigate('Home')
     }
+    
     return (
         <View style={styles.container}>
             <Text style={styles.Label}>WELCOME TO MY APP</Text>
@@ -110,7 +106,7 @@ export default function LoginScreen({ route, navigation }) {
                 <TextInput style={styles.inputPass} placeholder='your password' value={pass} onChangeText={setPass} />
             </View>
             <View style={styles.containerButton}>
-                <Button title='Login' onPress={loginHandeler} />
+                <Button title='Login' onPress={loginHandler} />
                 <Button color={'#ff8000'} title='Sign up' onPress={NaviSignUp} />
             </View>
         </View>
