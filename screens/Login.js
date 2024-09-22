@@ -37,6 +37,21 @@ const insertData = (user, pass) => {
 }
 
 
+
+const deleteData = (user) => {
+    db.transaction(tx => {
+        tx.executeSql(
+            'DELETE FROM users where username = ?',
+            [user],
+            () => {
+                alert('Account is deleted successfully!')
+                selectData()
+            },
+            error => console.log(error)
+        )
+    })
+}
+
 //Dùng để hiển thị và Mục đích chính là cập nhật lại table
 const selectData = () => {
     db.transaction(tx => {
@@ -93,9 +108,9 @@ export default function LoginScreen({ route, navigation }) {
         navigation.navigate('SignUp')
     }
     const NaviHome = () => {
-        navigation.navigate('Home')
+        navigation.navigate('Home', { userID })
     }
-    
+
     return (
         <View style={styles.container}>
             <Text style={styles.Label}>WELCOME TO MY APP</Text>
@@ -154,4 +169,4 @@ const styles = StyleSheet.create({
     }
 });
 
-export { insertData }
+export { insertData, deleteData }
