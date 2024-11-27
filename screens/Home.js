@@ -1,11 +1,11 @@
 import { StyleSheet, View, Text, Image, Button } from 'react-native';
-import { deleteData } from './Login';
+import { delAcc, deleteData, setAfterDel } from './Login';
 
 const HomeScreen = ({ route, navigation }) => {
     const { userID } = route.params
     const deleteAcc = () => {
-        navigation.navigate('Login')
-        deleteData(userID)
+        navigation.navigate('Login', { resetInputs: true })
+        delAcc(userID)
     }
     return (
         <View style={styles.body}>

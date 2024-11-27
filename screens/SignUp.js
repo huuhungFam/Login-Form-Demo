@@ -1,20 +1,23 @@
 import { useState } from 'react';
 import { StyleSheet, View, Text, TextInput, Button } from 'react-native';
-import { insertData } from './Login';
+import { insertData, signUp } from './Login';
+
+
 
 const SignUpSreen = ({ navigation }) => {
     const [newUsername, setNewUsername] = useState('')
     const [newPass, setNewPass] = useState('')
-    const creatAcc = () => {
-        insertData(newUsername, newPass)
-        navigation.navigate('Login', { newUsername, newPass })
+
+    const creatAccount = () =>{
+        signUp(newUsername, newPass)
+        navigation.navigate('Login', {newUsername, newPass})
     }
     return (
         <View style={styles.body}>
             <Text style={styles.text}>SIGN UP SCREEN</Text>
             <TextInput style={styles.TextInput} placeholder='Enter your user name' value={newUsername} onChangeText={setNewUsername} />
             <TextInput style={styles.TextInput} placeholder='Enter your user name' value={newPass} onChangeText={setNewPass} />
-            <Button title='Creat account' onPress={creatAcc} />
+            <Button title='Creat account' onPress={creatAccount} />
         </View>
     );
 };

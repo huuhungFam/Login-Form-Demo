@@ -1,69 +1,37 @@
 import { StatusBar } from 'expo-status-bar';
 import { useState, useEffect } from 'react';
-import { Button, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Button, StyleSheet, Text, TextInput, View, Pressable, TouchableOpacity } from 'react-native';
 import * as SQLite from 'expo-sqlite/legacy'
+import Entypo from '@expo/vector-icons/Entypo';
+//<Entypo name="eye" size={24} color="black" />
+//<Entypo name="eye-with-line" size={24} color="black" />
+import axios from 'axios';
+const baseUrl = 'http://192.168.1.2:22222';
 
-const db = SQLite.openDatabase("dataUsers.db")
 
-const databaseSetup = () => {
-    useEffect(() => {
-        db.transaction(tx => {
-            tx.executeSql(
-                'CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT, password TEXT);',
-                [],
-                () => console.log("Database is accessed")
-            )
+const signUp = (user, pass) => {
+    axios.post(`${baseUrl}/api/USER/signup`, {
+        name: user,
+        age: parseInt(pass)
+    })
+        .then(response => {
+            console.log('dang ky thanh cong')
         })
-
-        selectData()
-    }, [])
+        .catch(error => {
+            console.error('Error:', error);
+        });
 }
 
-
-
-const insertData = (user, pass) => {
-    db.transaction(tx => {
-        tx.executeSql(
-            'INSERT INTO users (username, password) VALUES (?, ?);',
-            [user, pass],
-            () => {
-                console.log('Data is inserted successfully')
-                selectData()
-            },
-            error => { alert('ERROR!! Can not creat new account, please try agian') }
-        )
-
+const delAcc = (user) => {
+    axios.delete(`${baseUrl}/api/USER/deleteAccount`, {
+        params: { name: user }
     })
-}
-
-
-
-const deleteData = (user) => {
-    db.transaction(tx => {
-        tx.executeSql(
-            'DELETE FROM users where username = ?',
-            [user],
-            () => {
-                alert('Account is deleted successfully!')
-                selectData()
-            },
-            error => console.log(error)
-        )
-    })
-}
-
-//Dùng để hiển thị và Mục đích chính là cập nhật lại table
-const selectData = () => {
-    db.transaction(tx => {
-        tx.executeSql(
-            'SELECT * FROM users',
-            null,
-            (txObj, result) => {
-                console.log(result.rows._array)
-            },
-            (txObj, error) => console.log(error)
-        )
-    })
+        .then(response => {
+            console.log('Da xoa tai khoan')
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
 }
 
 export default function LoginScreen({ route, navigation }) {
@@ -74,34 +42,33 @@ export default function LoginScreen({ route, navigation }) {
         if (route.params?.newPass) {
             setPass(route.params.newPass);
         }
+        if (route.params?.resetInputs) {
+            setID('');
+            setPass('');
+        }
     }, [route.params]);
 
     const [userID, setID] = useState('')
     const [pass, setPass] = useState('')
+    const [hide, setHide] = useState(true)
 
-    databaseSetup()
+
 
     const loginHandler = () => {
-        if (!userID || !pass) {
-            alert('Please enter both username and password');
-            return;
-        }
-        db.transaction(tx => {
-            tx.executeSql(
-                'SELECT * FROM users WHERE username = ? AND password = ?;',
-                [userID, pass],
-                (txObj, { rows: { _array } }) => {
-                    if (_array.length > 0) {
-                        NaviHome()
-                    } else {
-                        alert('Incorrect username or password')
-                    }
-                },
-                (txObj, error) => {
-                    console.log('Error', error)
-                }
-            )
+        axios.post(`${baseUrl}/api/USER/login`, {
+            name: userID,
+            age: parseInt(pass)
         })
+            .then(response => {
+                // console.log(response.data)
+                if(userID == response.data.users[0].name && pass == response.data.users[0].age){
+                    NaviHome()
+                }
+            })
+            .catch(error => {
+                alert("CHECK YOUR USERNAME AND PASSWORD!!!")
+            });
+
     }
 
     const NaviSignUp = () => {
@@ -117,9 +84,22 @@ export default function LoginScreen({ route, navigation }) {
             <View style={styles.containerInput}>
                 <Text>Username</Text>
                 <TextInput style={styles.inputUsername} placeholder='your user id' value={userID} onChangeText={setID} />
-                <Text>Password</Text>
-                <TextInput style={styles.inputPass} placeholder='your password' value={pass} onChangeText={setPass} />
             </View>
+            <View style={styles.containerInput1}>
+                <Text>Password</Text>
+                <View style={{flexDirection:'row'}}>
+                    <TextInput style={styles.inputPass} placeholder='your password'  value={pass} secureTextEntry={hide} onChangeText={setPass} />
+                    <TouchableOpacity
+                        style={styles.button}
+                        onPress={() => {
+                            setHide(!hide)
+                        }}
+                    >
+                        <Text>{hide ? <Entypo name="eye" size={24} color="black" /> : <Entypo name="eye-with-line" size={24} color="black" />}</Text>
+                    </TouchableOpacity>
+                </View>
+            </View>
+
             <View style={styles.containerButton}>
                 <Button title='Login' onPress={loginHandler} />
                 <Button color={'#ff8000'} title='Sign up' onPress={NaviSignUp} />
@@ -148,6 +128,16 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
     },
+    containerInput1: {
+        marginTop: 40,
+        marginBottom: 35,
+        width: '100%',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    button: {
+        marginLeft:10
+    },
     containerButton: {
         justifyContent: 'center',
         flexDirection: 'row',
@@ -169,4 +159,4 @@ const styles = StyleSheet.create({
     }
 });
 
-export { insertData, deleteData }
+export {signUp, delAcc}
