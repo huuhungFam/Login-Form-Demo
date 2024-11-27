@@ -9,14 +9,23 @@ const databaseSetup = () => {
     useEffect(() => {
         db.transaction(tx => {
             tx.executeSql(
-                'CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT, password TEXT);',
+                'CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT NOT NULL, password TEXT NOT NULL);',
                 [],
-                () => console.log("Database is accessed")
+                () => console.log("Table users is created"),
+                () => alert('Table users is not created')
             )
         })
-
-        selectData()
-    }, [])
+    //     db.transaction(tx => {
+    //         tx.executeSql(
+    //             'CREATE TABLE IF NOT EXISTS user_info (id INTEGER PRIMARY KEY AUTOINCREMENT,user_id INTEGER NOT NULL,full_name TEXT,email TEXT,phone_number TEXT,address TEXT,FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE);',
+    //             [],
+    //             () => console.log('Table user_info is created'),
+    //             () => console.log('Table user_info is not created')
+    //         )
+    // })
+    selectData()
+    // selectData_userin4()
+}, [])
 }
 
 
@@ -32,7 +41,6 @@ const insertData = (user, pass) => {
             },
             error => { alert('ERROR!! Can not creat new account, please try agian') }
         )
-
     })
 }
 
@@ -65,6 +73,32 @@ const selectData = () => {
         )
     })
 }
+const selectData_userin4 = () => {
+    db.transaction(tx => {
+        tx.executeSql(
+            'SELECT * FROM user_info',
+            null,
+            (txObj, result) => {
+                console.log(result.rows._array)
+            },
+            (txObj, error) => console.log(error)
+        )
+    })
+}
+
+const editData = (newPass, userID) => {
+    db.transaction(tx =>{
+        tx.executeSql(
+            'UPDATE users SET password =  ? WHERE id = ?;',
+            [newPass, userID],
+            () => alert('Updating your new password successfully!'),
+            () => alert('Cannot set new password')
+        )
+    })
+}
+
+
+
 
 export default function LoginScreen({ route, navigation }) {
     useEffect(() => {
@@ -92,7 +126,8 @@ export default function LoginScreen({ route, navigation }) {
                 [userID, pass],
                 (txObj, { rows: { _array } }) => {
                     if (_array.length > 0) {
-                        NaviHome()
+                        const id = _array[0].id
+                        NaviHome(id)
                     } else {
                         alert('Incorrect username or password')
                     }
@@ -107,8 +142,8 @@ export default function LoginScreen({ route, navigation }) {
     const NaviSignUp = () => {
         navigation.navigate('SignUp')
     }
-    const NaviHome = () => {
-        navigation.navigate('Home', { userID })
+    const NaviHome = (id) => {
+        navigation.navigate('Home', { userID, id })
     }
 
     return (
@@ -118,7 +153,7 @@ export default function LoginScreen({ route, navigation }) {
                 <Text>Username</Text>
                 <TextInput style={styles.inputUsername} placeholder='your user id' value={userID} onChangeText={setID} />
                 <Text>Password</Text>
-                <TextInput style={styles.inputPass} placeholder='your password' value={pass} onChangeText={setPass} />
+                <TextInput style={styles.inputPass} placeholder='your password' secureTextEntry={true} value={pass} onChangeText={setPass} />
             </View>
             <View style={styles.containerButton}>
                 <Button title='Login' onPress={loginHandler} />
@@ -169,4 +204,4 @@ const styles = StyleSheet.create({
     }
 });
 
-export { insertData, deleteData }
+export { insertData, deleteData, editData }

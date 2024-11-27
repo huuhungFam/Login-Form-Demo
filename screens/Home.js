@@ -2,7 +2,7 @@ import { StyleSheet, View, Text, Image, Button } from 'react-native';
 import { deleteData } from './Login';
 
 const HomeScreen = ({ route, navigation }) => {
-    const { userID } = route.params
+    const { userID, id } = route.params
     const deleteAcc = () => {
         navigation.navigate('Login')
         deleteData(userID)
@@ -11,6 +11,7 @@ const HomeScreen = ({ route, navigation }) => {
         <View style={styles.body}>
             <Button color={'#e74c3c'} title='Delete account' onPress={deleteAcc} />
             <Text style={styles.text}>HOME SCREEN</Text>
+            <Text>${id}</Text>
             <Image
                 style={styles.Img}
                 source={require('../assets/CTUtravel.jpg')}

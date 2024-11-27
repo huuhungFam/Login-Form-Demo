@@ -13,8 +13,8 @@ const SignUpSreen = ({ navigation }) => {
         <View style={styles.body}>
             <Text style={styles.text}>SIGN UP SCREEN</Text>
             <TextInput style={styles.TextInput} placeholder='Enter your user name' value={newUsername} onChangeText={setNewUsername} />
-            <TextInput style={styles.TextInput} placeholder='Enter your user name' value={newPass} onChangeText={setNewPass} />
-            <Button title='Creat account' onPress={creatAcc} />
+            <TextInput style={styles.TextInput} placeholder='Enter your password' value={newPass} onChangeText={setNewPass} />
+            <Button title='Create account' onPress={creatAcc} />
         </View>
     );
 };
